@@ -19,14 +19,30 @@ namespace PortHelper.ViewModel
 
         private string _sendMessage;
 
+        private int? _localPort;
+
+        private TcpClientViewModel _remoteClient;
+
         public TcpServerViewModel()
         {
             IsTextMode = true;
+            RemoteClients = new ObservableCollection<IClientViewModel>();
+        }
+
+        public ObservableCollection<IClientViewModel> RemoteClients { get; }
+
+        public TcpClientViewModel RemoteClient
+        {
+            get => _remoteClient;
+            set
+            {
+                if (_remoteClient == value) return;
+                _remoteClient = value;
+                OnPropertyChanged();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public Socket Client { get; set; }
 
         public bool Connected
         {
@@ -77,7 +93,17 @@ namespace PortHelper.ViewModel
         }
 
         public string OpenButtonText => Connected ? "Close" : "Open";
-        public int Port { get; set; }
+
+        public int? LocalPort
+        {
+            get => _localPort;
+            set
+            {
+                if (_localPort == value) return;
+                _localPort = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
             new ObservableCollection<LogViewModel>();
@@ -113,42 +139,61 @@ namespace PortHelper.ViewModel
 
         public Socket Server { get; set; }
 
-        public async Task Receive()
+        public async Task Receive(TcpClientViewModel client)
         {
             while (true)
             {
-                var stream = new NetworkStream(Client);
+                var stream = new NetworkStream(client.Entity);
                 var readBytes = new byte[1024];
-                var readCount = await stream.ReadAsync(readBytes, 0, readBytes.Length);
-                if (readCount > 0)
+                try
                 {
-                    var readString = Encoding.UTF8.GetString(readBytes, 0, readCount);
-                    var receiveLog = new LogViewModel
+                    var readCount = await stream.ReadAsync(readBytes, 0, readBytes.Length);
+                    if (readCount > 0)
                     {
-                        IsTextMode = true,
-                        Time = DateTime.Now,
-                        Text = readString
-                    };
-                    receiveLog.IsTextMode = IsTextMode;
-                    ReceiveLogs.Add(receiveLog);
+                        var readString = Encoding.UTF8.GetString(readBytes, 0, readCount);
+                        var receiveLog = new LogViewModel
+                        {
+                            IsTextMode = true,
+                            Time = DateTime.Now,
+                            Text = readString,
+                            Source = client.Name
+                        };
+                        receiveLog.IsTextMode = IsTextMode;
+                        ReceiveLogs.Add(receiveLog);
+                    }
                 }
+                catch (Exception)
+                {
+                    RemoteClients.Remove(client);
+                    var closeLog = new LogViewModel
+                    {
+                        IsSystemLog = true,
+                        Time = DateTime.Now,
+                        Text = "** Connection Closed. **",
+                        Source = client.Name
+                    };
+                    ReceiveLogs.Add(closeLog);
+                }
+                
             }
         }
 
         public async Task Send()
         {
-            var stream = new NetworkStream(Client);
+            if (RemoteClient == null) return;
+            var stream = new NetworkStream(RemoteClient.Entity);
             await stream.WriteAsync(_sendBytes, 0, _sendBytes.Length);
             var sendLog = new LogViewModel
             {
                 IsTextMode = IsTextMode,
                 Time = DateTime.Now,
-                Text = SendMessage
+                Text = SendMessage,
+                Source = RemoteClient.Name
             };
             SendLogs.Add(sendLog);
         }
 
-        public async Task StartListeningAsync()
+        public async Task OpenAsync()
         {
             try
             {
@@ -156,33 +201,44 @@ namespace PortHelper.ViewModel
                 {
                     Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream,
                         ProtocolType.Tcp);
-                    Server.Bind(new IPEndPoint(IPAddress.Any, Port));
+                    Server.Bind(new IPEndPoint(IPAddress.Any, LocalPort ?? 0));
+                    LocalPort = ((IPEndPoint) Server.LocalEndPoint).Port;
                     ReceiveLogs.Add(new LogViewModel
                     {
                         IsSystemLog = true,
                         Time = DateTime.Now,
-                        Text = $"** Start Listening Port: {((IPEndPoint)Server.LocalEndPoint).Port} **"
+                        Text = $"** Start Listening Port: {LocalPort} **"
                     });
                     Server.Listen(10);
                     Connected = true;
                     while (Connected)
                     {
-                        Client = await Server.AcceptAsync();
-                        _ = Receive();
+                        var socket = await Server.AcceptAsync();
+                        var client = new TcpClientViewModel(socket);
+                        RemoteClients.Add(client);
+                        _ = Receive(client);
+                        var builtLog = new LogViewModel
+                        {
+                            IsSystemLog = true,
+                            Time = DateTime.Now,
+                            Text = "** Connection Built. **",
+                            Source = client.Name
+                        };
+                        ReceiveLogs.Add(builtLog);
                     }
                 }
 
                 Server.Close();
+            }
+            catch (Exception)
+            {
                 Connected = false;
                 ReceiveLogs.Add(new LogViewModel
                 {
                     IsSystemLog = true,
                     Time = DateTime.Now,
-                    Text = "** Stop Listening **"
+                    Text = "** Stop Listening **",
                 });
-            }
-            catch (Exception e)
-            {
             }
         }
 

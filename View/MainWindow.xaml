@@ -30,6 +30,13 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Margin" Value="10, 0" />
         </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignComboBox}">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="10, 0" />
+        </Style>
         <Style TargetType="RadioButton" BasedOn="{StaticResource MaterialDesignDarkRadioButton}">
             <Setter Property="Margin" Value="5" />
             <Setter Property="HorizontalAlignment" Value="Left" />
@@ -44,7 +51,7 @@
         </Style>
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="Open" Executed="StartListening_Execute" />
+        <CommandBinding Command="Open" Executed="Open_Execute" />
         <CommandBinding Command="{StaticResource Send}" Executed="SendMessage_Execute"
                         CanExecute="SendMessage_CanExecute" />
     </Window.CommandBindings>
@@ -56,19 +63,13 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
-                            <Setter Property="Width" Value="120" />
-                            <Setter Property="HorizontalAlignment" Value="Left" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Setter Property="Margin" Value="10, 0" />
-                        </Style>
-                    </StackPanel.Resources>
-                    <Button Command="Open" Content="{Binding CurrentViewModel.OpenButtonText}" />
+                    <Button Command="Open" Content="{Binding TcpServer.OpenButtonText}" />
                     <TextBlock>Local Port:</TextBlock>
-                    <TextBox Text="{Binding TcpServer.Port, Mode=TwoWay}" />
+                    <TextBox Text="{Binding TcpServer.LocalPort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
+                    <TextBlock>Remote Clients:</TextBlock>
+                    <ComboBox Width="200" ItemsSource="{Binding TcpServer.RemoteClients}"
+                              SelectedItem="{Binding TcpServer.RemoteClient, Mode=TwoWay}"
+                              DisplayMemberPath="Name"/>
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
@@ -83,6 +84,7 @@
                         <DataGrid ItemsSource="{Binding TcpServer.ReceiveLogs}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                <DataGridTextColumn Header="From" Binding="{Binding Source}" />
                                 <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
                             </DataGrid.Columns>
                         </DataGrid>
@@ -91,6 +93,7 @@
                         <DataGrid ItemsSource="{Binding TcpServer.SendLogs}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                <DataGridTextColumn Header="To" Binding="{Binding Source}" />
                                 <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
                             </DataGrid.Columns>
                         </DataGrid>
@@ -117,19 +120,13 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <StackPanel.Resources>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
-                            <Setter Property="Width" Value="120" />
-                            <Setter Property="HorizontalAlignment" Value="Left" />
-                            <Setter Property="VerticalAlignment" Value="Center" />
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Setter Property="Margin" Value="10, 0" />
-                        </Style>
-                    </StackPanel.Resources>
-                    <Button Command="Open" Content="{Binding CurrentViewModel.OpenButtonText}" />
+                    <Button Command="Open" Content="{Binding UdpServer.OpenButtonText}" Cursor="Hand" />
                     <TextBlock>Local Port:</TextBlock>
-                    <TextBox Text="{Binding UdpServer.Port, Mode=TwoWay}" />
+                    <TextBox Text="{Binding UdpServer.LocalPort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
+                    <TextBlock>Remote Clients:</TextBlock>
+                    <TextBox Text="{Binding UdpServer.RemoteIP, Mode=TwoWay}" Width="120" HorizontalContentAlignment="Center" />
+                    <TextBlock Text=":"/>
+                    <TextBox Text="{Binding UdpServer.RemotePort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
@@ -141,17 +138,19 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <ScrollViewer Grid.Row="0" Grid.Column="0">
-                        <DataGrid ItemsSource="{Binding UdpServer.SendLogs}">
+                        <DataGrid ItemsSource="{Binding UdpServer.ReceiveLogs}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                <DataGridTextColumn Header="To" Binding="{Binding Source}" />
                                 <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </ScrollViewer>
                     <ScrollViewer Grid.Row="0" Grid.Column="1">
-                        <DataGrid ItemsSource="{Binding UdpServer.ReceiveLogs}">
+                        <DataGrid ItemsSource="{Binding UdpServer.SendLogs}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                <DataGridTextColumn Header="From" Binding="{Binding Source}" />
                                 <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
                             </DataGrid.Columns>
                         </DataGrid>
@@ -166,7 +165,7 @@
                         <RadioButton Grid.Column="0" IsChecked="{Binding UdpServer.IsTextMode}">Text Mode</RadioButton>
                         <RadioButton Grid.Column="1">Hex Mode</RadioButton>
                         <TextBox Grid.Column="2" HorizontalAlignment="Stretch" Text="{Binding UdpServer.SendMessage}" />
-                        <Button Grid.Column="3" Command="{StaticResource Send}">Send</Button>
+                        <Button Grid.Column="3" Command="{StaticResource Send}" Cursor="Hand">Send</Button>
                     </Grid>
                 </Grid>
             </Grid>

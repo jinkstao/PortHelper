@@ -13,6 +13,7 @@ namespace PortHelper.ViewModel
 
         private string _text;
         private DateTime _time;
+        private string _source;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -75,6 +76,17 @@ namespace PortHelper.ViewModel
             set
             {
                 _time = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Source
+        {
+            get => _source;
+            set
+            {
+                if (_source == value) return;
+                _source = value;
                 OnPropertyChanged();
             }
         }

@@ -11,7 +11,6 @@ namespace PortHelper.ViewModel
 {
     public sealed class UdpServerViewModel : IBaseProtocolViewModel
     {
-        public EndPoint RemoteEndPoint;
         private bool _connected;
 
         private bool _isTextMode;
@@ -19,6 +18,11 @@ namespace PortHelper.ViewModel
         private byte[] _sendBytes;
 
         private string _sendMessage;
+
+        private string _remoteIP;
+
+        private int? _remotePort;
+        private int? _localPort;
 
         public UdpServerViewModel()
         {
@@ -76,7 +80,39 @@ namespace PortHelper.ViewModel
         }
 
         public string OpenButtonText => Connected ? "Close" : "Open";
-        public int Port { get; set; }
+
+        public int? LocalPort
+        {
+            get => _localPort;
+            set
+            {
+                if (_localPort == value) return;
+                _localPort = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string RemoteIP
+        {
+            get => _remoteIP;
+            set
+            {
+                if (_remoteIP == value) return;
+                _remoteIP = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int? RemotePort
+        {
+            get => _remotePort;
+            set
+            {
+                if (_remotePort == value) return;
+                _remotePort = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
             new ObservableCollection<LogViewModel>();
@@ -114,22 +150,24 @@ namespace PortHelper.ViewModel
 
         public async Task Receive()
         {
-            RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
             var buffer = new byte[1024];
-            var length = await Task.Run(() => Server.ReceiveFrom(buffer, ref RemoteEndPoint));
+            var length = await Task.Run(() => Server.ReceiveFrom(buffer, ref remoteEndPoint));
             //int length = Server.ReceiveFrom(buffer, ref RemoteEndPoint);
             if (length == 0)
             {
-                Server.SendTo(new byte[0], RemoteEndPoint);
+                Server.SendTo(new byte[0], remoteEndPoint);
             }
             else
             {
                 var readString = Encoding.UTF8.GetString(buffer, 0, length);
+                var remoteIPEndPoint = (IPEndPoint) remoteEndPoint;
                 var receiveLog = new LogViewModel
                 {
                     IsTextMode = true,
                     Time = DateTime.Now,
-                    Text = readString
+                    Text = readString,
+                    Source = $"{remoteIPEndPoint.Address}:{remoteIPEndPoint.Port}"
                 };
                 receiveLog.IsTextMode = IsTextMode;
                 ReceiveLogs.Add(receiveLog);
@@ -138,17 +176,19 @@ namespace PortHelper.ViewModel
 
         public async Task Send()
         {
-            Server.SendTo(_sendBytes, RemoteEndPoint);
+            var remoteIPEndPoint = new IPEndPoint(IPAddress.Parse(RemoteIP), RemotePort.Value);
+            Server.SendTo(_sendBytes, remoteIPEndPoint);
             var sendLog = new LogViewModel
             {
                 IsTextMode = IsTextMode,
                 Time = DateTime.Now,
-                Text = SendMessage
+                Text = SendMessage,
+                Source = $"{remoteIPEndPoint.Address}:{remoteIPEndPoint.Port}"
             };
             SendLogs.Add(sendLog);
         }
 
-        public async Task StartListeningAsync()
+        public async Task OpenAsync()
         {
             try
             {
@@ -156,12 +196,13 @@ namespace PortHelper.ViewModel
                 {
                     Server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,
                         ProtocolType.Udp);
-                    Server.Bind(new IPEndPoint(IPAddress.Any, Port));
+                    Server.Bind(new IPEndPoint(IPAddress.Any, LocalPort ?? 0));
+                    LocalPort = ((IPEndPoint) Server.LocalEndPoint).Port;
                     ReceiveLogs.Add(new LogViewModel
                     {
                         IsSystemLog = true,
                         Time = DateTime.Now,
-                        Text = $"** Start Listening Port: {((IPEndPoint)Server.LocalEndPoint).Port} **"
+                        Text = $"** Start Listening Port: {LocalPort} **"
                     });
                     Connected = true;
                     while (Connected) await Receive();

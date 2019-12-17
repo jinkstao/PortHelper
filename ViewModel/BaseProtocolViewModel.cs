@@ -9,6 +9,6 @@ namespace PortHelper.ViewModel
 
         Task Send();
 
-        Task StartListeningAsync();
+        Task OpenAsync();
     }
 }

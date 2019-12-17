@@ -37,11 +37,5 @@ namespace PortHelper.ViewModel
         public TcpServerViewModel TcpServer { get; }
 
         public UdpServerViewModel UdpServer { get; }
-
-        [NotifyPropertyChangedInvocator]
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

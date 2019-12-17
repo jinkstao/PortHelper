@@ -1,4 +1,5 @@
-﻿using PortHelper.ViewModel;
+﻿using System;
+using PortHelper.ViewModel;
 using System.Windows.Input;
 
 namespace PortHelper.View
@@ -21,11 +22,9 @@ namespace PortHelper.View
         {
             e.CanExecute = ViewModel?.CurrentViewModel switch
             {
-                TcpServerViewModel tcpViewModel => (tcpViewModel.Connected &&
-                                                    tcpViewModel.Client != null),
-                UdpServerViewModel udpViewModel => (udpViewModel.Connected &&
-                                                    udpViewModel.RemoteEndPoint != null),
-                _ => e.CanExecute
+                TcpServerViewModel tcpViewModel => tcpViewModel.Connected && tcpViewModel.RemoteClient != null,
+                UdpServerViewModel udpViewModel => udpViewModel.Connected && !string.IsNullOrEmpty(udpViewModel.RemoteIP) && udpViewModel.RemotePort != null,
+                _ => false
             };
         }
 
@@ -34,9 +33,14 @@ namespace PortHelper.View
             ViewModel.CurrentViewModel.Send();
         }
 
-        private void StartListening_Execute(object sender, ExecutedRoutedEventArgs e)
+        private void Open_Execute(object sender, ExecutedRoutedEventArgs e)
         {
-            ViewModel.CurrentViewModel.StartListeningAsync();
+            ViewModel.CurrentViewModel.OpenAsync();
+        }
+
+        private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
