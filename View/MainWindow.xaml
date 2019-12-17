@@ -19,16 +19,16 @@
             <Setter Property="Padding" Value="5" />
         </Style>
         <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignButtonTextBlock}">
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="10, 0"/>
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="10, 0" />
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="10, 0"/>
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="10, 0" />
         </Style>
         <Style TargetType="RadioButton" BasedOn="{StaticResource MaterialDesignDarkRadioButton}">
             <Setter Property="Margin" Value="5" />
@@ -59,11 +59,11 @@
                     <StackPanel.Resources>
                         <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
                             <Setter Property="Width" Value="120" />
-                            <Setter Property="HorizontalAlignment" Value="Left"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            <Setter Property="VerticalContentAlignment" Value="Center"/>
-                            <Setter Property="Margin" Value="10, 0"/>
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Margin" Value="10, 0" />
                         </Style>
                     </StackPanel.Resources>
                     <Button Command="Open" Content="{Binding CurrentViewModel.OpenButtonText}" />
@@ -120,11 +120,11 @@
                     <StackPanel.Resources>
                         <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
                             <Setter Property="Width" Value="120" />
-                            <Setter Property="HorizontalAlignment" Value="Left"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            <Setter Property="VerticalContentAlignment" Value="Center"/>
-                            <Setter Property="Margin" Value="10, 0"/>
+                            <Setter Property="HorizontalAlignment" Value="Left" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Margin" Value="10, 0" />
                         </Style>
                     </StackPanel.Resources>
                     <Button Command="Open" Content="{Binding CurrentViewModel.OpenButtonText}" />

@@ -6,12 +6,12 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using PortHelper.View.Annotations;
 
 namespace PortHelper.ViewModel
 {
     public sealed class UdpServerViewModel : IBaseProtocolViewModel
     {
+        public EndPoint RemoteEndPoint;
         private bool _connected;
 
         private bool _isTextMode;
@@ -20,16 +20,23 @@ namespace PortHelper.ViewModel
 
         private string _sendMessage;
 
-        public EndPoint RemoteEndPoint;
-
         public UdpServerViewModel()
         {
             IsTextMode = true;
         }
 
-        public Socket Server { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        public int Port { get; set; }
+        public bool Connected
+        {
+            get => _connected;
+            set
+            {
+                _connected = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OpenButtonText));
+            }
+        }
 
         public bool IsTextMode
         {
@@ -68,6 +75,15 @@ namespace PortHelper.ViewModel
             }
         }
 
+        public string OpenButtonText => Connected ? "Close" : "Open";
+        public int Port { get; set; }
+
+        public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
+            new ObservableCollection<LogViewModel>();
+
+        public ObservableCollection<LogViewModel> SendLogs { get; } =
+            new ObservableCollection<LogViewModel>();
+
         public string SendMessage
         {
             get => _sendMessage;
@@ -94,26 +110,43 @@ namespace PortHelper.ViewModel
             }
         }
 
-        public ObservableCollection<LogViewModel> SendLogs { get; } =
-            new ObservableCollection<LogViewModel>();
+        public Socket Server { get; set; }
 
-        public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
-            new ObservableCollection<LogViewModel>();
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public bool Connected
+        public async Task Receive()
         {
-            get => _connected;
-            set
+            RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            var buffer = new byte[1024];
+            var length = await Task.Run(() => Server.ReceiveFrom(buffer, ref RemoteEndPoint));
+            //int length = Server.ReceiveFrom(buffer, ref RemoteEndPoint);
+            if (length == 0)
             {
-                _connected = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(OpenButtonText));
+                Server.SendTo(new byte[0], RemoteEndPoint);
+            }
+            else
+            {
+                var readString = Encoding.UTF8.GetString(buffer, 0, length);
+                var receiveLog = new LogViewModel
+                {
+                    IsTextMode = true,
+                    Time = DateTime.Now,
+                    Text = readString
+                };
+                receiveLog.IsTextMode = IsTextMode;
+                ReceiveLogs.Add(receiveLog);
             }
         }
 
-        public string OpenButtonText => Connected ? "Close" : "Open";
+        public async Task Send()
+        {
+            Server.SendTo(_sendBytes, RemoteEndPoint);
+            var sendLog = new LogViewModel
+            {
+                IsTextMode = IsTextMode,
+                Time = DateTime.Now,
+                Text = SendMessage
+            };
+            SendLogs.Add(sendLog);
+        }
 
         public async Task StartListeningAsync()
         {
@@ -145,42 +178,6 @@ namespace PortHelper.ViewModel
             }
             catch (Exception e)
             {
-            }
-        }
-
-        public async Task Send()
-        {
-            Server.SendTo(_sendBytes, RemoteEndPoint);
-            var sendLog = new LogViewModel
-            {
-                IsTextMode = IsTextMode,
-                Time = DateTime.Now,
-                Text = SendMessage
-            };
-            SendLogs.Add(sendLog);
-        }
-
-        public async Task Receive()
-        {
-            RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            var buffer = new byte[1024];
-            var length = await Task.Run(() => Server.ReceiveFrom(buffer, ref RemoteEndPoint));
-            //int length = Server.ReceiveFrom(buffer, ref RemoteEndPoint);
-            if (length == 0)
-            {
-                Server.SendTo(new byte[0], RemoteEndPoint);
-            }
-            else
-            {
-                var readString = Encoding.UTF8.GetString(buffer, 0, length);
-                var receiveLog = new LogViewModel
-                {
-                    IsTextMode = true,
-                    Time = DateTime.Now,
-                    Text = readString
-                };
-                receiveLog.IsTextMode = IsTextMode;
-                ReceiveLogs.Add(receiveLog);
             }
         }
 

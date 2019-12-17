@@ -6,7 +6,6 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using PortHelper.View.Annotations;
 
 namespace PortHelper.ViewModel
 {
@@ -25,11 +24,20 @@ namespace PortHelper.ViewModel
             IsTextMode = true;
         }
 
-        public Socket Server { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public Socket Client { get; set; }
 
-        public int Port { get; set; }
+        public bool Connected
+        {
+            get => _connected;
+            set
+            {
+                _connected = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OpenButtonText));
+            }
+        }
 
         public bool IsTextMode
         {
@@ -68,6 +76,15 @@ namespace PortHelper.ViewModel
             }
         }
 
+        public string OpenButtonText => Connected ? "Close" : "Open";
+        public int Port { get; set; }
+
+        public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
+            new ObservableCollection<LogViewModel>();
+
+        public ObservableCollection<LogViewModel> SendLogs { get; } =
+            new ObservableCollection<LogViewModel>();
+
         public string SendMessage
         {
             get => _sendMessage;
@@ -94,27 +111,42 @@ namespace PortHelper.ViewModel
             }
         }
 
-        public ObservableCollection<LogViewModel> SendLogs { get; } =
-            new ObservableCollection<LogViewModel>();
+        public Socket Server { get; set; }
 
-        public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
-            new ObservableCollection<LogViewModel>();
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public bool Connected
+        public async Task Receive()
         {
-            get => _connected;
-            set
+            while (true)
             {
-                _connected = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(OpenButtonText));
+                var stream = new NetworkStream(Client);
+                var readBytes = new byte[1024];
+                var readCount = await stream.ReadAsync(readBytes, 0, readBytes.Length);
+                if (readCount > 0)
+                {
+                    var readString = Encoding.UTF8.GetString(readBytes, 0, readCount);
+                    var receiveLog = new LogViewModel
+                    {
+                        IsTextMode = true,
+                        Time = DateTime.Now,
+                        Text = readString
+                    };
+                    receiveLog.IsTextMode = IsTextMode;
+                    ReceiveLogs.Add(receiveLog);
+                }
             }
         }
-        
-        public string OpenButtonText => Connected ? "Close" : "Open";
+
+        public async Task Send()
+        {
+            var stream = new NetworkStream(Client);
+            await stream.WriteAsync(_sendBytes, 0, _sendBytes.Length);
+            var sendLog = new LogViewModel
+            {
+                IsTextMode = IsTextMode,
+                Time = DateTime.Now,
+                Text = SendMessage
+            };
+            SendLogs.Add(sendLog);
+        }
 
         public async Task StartListeningAsync()
         {
@@ -129,7 +161,7 @@ namespace PortHelper.ViewModel
                     {
                         IsSystemLog = true,
                         Time = DateTime.Now,
-                        Text = $"** Start Listening Port: {((IPEndPoint) Server.LocalEndPoint).Port} **"
+                        Text = $"** Start Listening Port: {((IPEndPoint)Server.LocalEndPoint).Port} **"
                     });
                     Server.Listen(10);
                     Connected = true;
@@ -151,41 +183,6 @@ namespace PortHelper.ViewModel
             }
             catch (Exception e)
             {
-            }
-        }
-
-        public async Task Send()
-        {
-            var stream = new NetworkStream(Client);
-            await stream.WriteAsync(_sendBytes, 0, _sendBytes.Length);
-            var sendLog = new LogViewModel
-            {
-                IsTextMode = IsTextMode,
-                Time = DateTime.Now,
-                Text = SendMessage
-            };
-            SendLogs.Add(sendLog);
-        }
-
-        public async Task Receive()
-        {
-            while (true)
-            {
-                var stream = new NetworkStream(Client);
-                var readBytes = new byte[1024];
-                var readCount = await stream.ReadAsync(readBytes, 0, readBytes.Length);
-                if (readCount > 0)
-                {
-                    var readString = Encoding.UTF8.GetString(readBytes, 0, readCount);
-                    var receiveLog = new LogViewModel
-                    {
-                        IsTextMode = true,
-                        Time = DateTime.Now,
-                        Text = readString
-                    };
-                    receiveLog.IsTextMode = IsTextMode;
-                    ReceiveLogs.Add(receiveLog);
-                }
             }
         }
 

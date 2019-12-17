@@ -1,5 +1,5 @@
-﻿using System.Windows.Input;
-using PortHelper.ViewModel;
+﻿using PortHelper.ViewModel;
+using System.Windows.Input;
 
 namespace PortHelper.View
 {
@@ -17,16 +17,6 @@ namespace PortHelper.View
 
         public MainViewModel ViewModel { get; set; }
 
-        private void StartListening_Execute(object sender, ExecutedRoutedEventArgs e)
-        {
-            ViewModel.CurrentViewModel.StartListeningAsync();
-        }
-
-        private void SendMessage_Execute(object sender, ExecutedRoutedEventArgs e)
-        {
-            ViewModel.CurrentViewModel.Send();
-        }
-
         private void SendMessage_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = ViewModel?.CurrentViewModel switch
@@ -37,6 +27,16 @@ namespace PortHelper.View
                                                     udpViewModel.RemoteEndPoint != null),
                 _ => e.CanExecute
             };
+        }
+
+        private void SendMessage_Execute(object sender, ExecutedRoutedEventArgs e)
+        {
+            ViewModel.CurrentViewModel.Send();
+        }
+
+        private void StartListening_Execute(object sender, ExecutedRoutedEventArgs e)
+        {
+            ViewModel.CurrentViewModel.StartListeningAsync();
         }
     }
 }

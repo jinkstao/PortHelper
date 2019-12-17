@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using PortHelper.View.Annotations;
 
 namespace PortHelper.ViewModel
 {
@@ -15,6 +14,10 @@ namespace PortHelper.ViewModel
             UdpServer = new UdpServerViewModel();
             SelectedIndex = 0;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public IBaseProtocolViewModel CurrentViewModel { get; set; }
 
         public int SelectedIndex
         {
@@ -31,13 +34,9 @@ namespace PortHelper.ViewModel
             }
         }
 
-        public IBaseProtocolViewModel CurrentViewModel { get; set; }
-
         public TcpServerViewModel TcpServer { get; }
 
         public UdpServerViewModel UdpServer { get; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

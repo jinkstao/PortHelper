@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace PortHelper.View
+namespace PortHelper
 {
     /// <summary>
     ///     Interaction logic for App.xaml

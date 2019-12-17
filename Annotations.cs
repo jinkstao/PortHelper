@@ -32,7 +32,7 @@ using System;
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
 
-namespace PortHelper.View.Annotations
+namespace PortHelper
 {
     /// <summary>
     ///     Indicates that the value of the marked element could be <c>null</c> sometimes,
@@ -41,7 +41,7 @@ namespace PortHelper.View.Annotations
     /// <example>
     ///     <code>
     /// [CanBeNull] object Test() => null;
-    /// 
+    ///
     /// void UseTest() {
     ///   var p = Test();
     ///   var s = p.ToString(); // Warning: Possible 'System.NullReferenceException'
@@ -131,7 +131,7 @@ namespace PortHelper.View.Annotations
     ///     <code>
     /// [StringFormatMethod("message")]
     /// void ShowError(string message, params object[] args) { /* do something */ }
-    /// 
+    ///
     /// void Foo() {
     ///   ShowError("Failed: {0}"); // Warning: Non-existing argument in format string
     /// }
@@ -167,12 +167,12 @@ namespace PortHelper.View.Annotations
     ///     public static int INT_CONST = 1;
     ///     public const string STRING_CONST = "1";
     ///   }
-    /// 
+    ///
     ///   public class Class1
     ///   {
     ///     [ValueProvider("TestNamespace.Constants")] public int myField;
     ///     public void Foo([ValueProvider("TestNamespace.Constants")] string str) { }
-    /// 
+    ///
     ///     public void Test()
     ///     {
     ///       Foo(/*try completion here*/);//
@@ -242,12 +242,12 @@ namespace PortHelper.View.Annotations
     ///     <code>
     /// public class Foo : INotifyPropertyChanged {
     ///   public event PropertyChangedEventHandler PropertyChanged;
-    /// 
+    ///
     ///   [NotifyPropertyChangedInvocator]
     ///   protected virtual void NotifyChanged(string propertyName) { ... }
-    /// 
+    ///
     ///   string _name;
-    /// 
+    ///
     ///   public string Name {
     ///     get { return _name; }
     ///     set { _name = value; NotifyChanged("LastName"); /* Warning */ }
@@ -396,7 +396,7 @@ namespace PortHelper.View.Annotations
     ///     <code>
     /// [CannotApplyEqualityOperator]
     /// class NoEquality { }
-    /// 
+    ///
     /// class UsesNoEquality {
     ///   void Test() {
     ///     var ca1 = new NoEquality();
@@ -421,7 +421,7 @@ namespace PortHelper.View.Annotations
     ///     <code>
     /// [BaseTypeRequired(typeof(IComponent)] // Specify requirement
     /// class ComponentAttribute : Attribute { }
-    /// 
+    ///
     /// [Component] // ComponentAttribute requires implementing IComponent interface
     /// class MyComponent : IComponent { }
     /// </code>
@@ -594,7 +594,7 @@ namespace PortHelper.View.Annotations
     /// <example>
     ///     <code>
     /// [Pure] int Multiply(int x, int y) => x * y;
-    /// 
+    ///
     /// void M() {
     ///   Multiply(123, 42); // Waring: Return value of pure method is not used
     /// }
@@ -644,7 +644,7 @@ namespace PortHelper.View.Annotations
     ///     <code>
     /// class Foo {
     ///   [ProvidesContext] IBarService _barService = ...;
-    /// 
+    ///
     ///   void ProcessNode(INode node) {
     ///     DoSomething(node, node.GetGlobalServices().Bar);
     ///     //              ^ Warning: use value of '_barService' field
@@ -1210,7 +1210,7 @@ namespace PortHelper.View.Annotations
     /// {
     ///   // custom check for null but no enumeration
     /// }
-    /// 
+    ///
     /// void Foo(IEnumerable&lt;string&gt; values)
     /// {
     ///   ThrowIfNull(values, nameof(values));

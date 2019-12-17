@@ -2,7 +2,6 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
-using PortHelper.View.Annotations;
 
 namespace PortHelper.ViewModel
 {
@@ -15,15 +14,7 @@ namespace PortHelper.ViewModel
         private string _text;
         private DateTime _time;
 
-        public DateTime Time
-        {
-            get => _time;
-            set
-            {
-                _time = value;
-                OnPropertyChanged();
-            }
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public byte[] Content
         {
@@ -32,6 +23,19 @@ namespace PortHelper.ViewModel
             {
                 _content = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public bool IsSystemLog { get; set; }
+
+        public bool IsTextMode
+        {
+            get => _isTextMode;
+            set
+            {
+                _isTextMode = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Text));
             }
         }
 
@@ -65,20 +69,15 @@ namespace PortHelper.ViewModel
             }
         }
 
-        public bool IsTextMode
+        public DateTime Time
         {
-            get => _isTextMode;
+            get => _time;
             set
             {
-                _isTextMode = value;
+                _time = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(Text));
             }
         }
-
-        public bool IsSystemLog { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
