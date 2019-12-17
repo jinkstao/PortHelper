@@ -11,25 +11,39 @@ namespace PortHelper.ViewModel
 {
     public sealed class UdpServerViewModel : IBaseProtocolViewModel
     {
+        #region Fields
+
         private bool _connected;
 
         private bool _isTextMode;
+        private int? _localPort;
+
+        private string _remoteIP;
+
+        private int? _remotePort;
 
         private byte[] _sendBytes;
 
         private string _sendMessage;
 
-        private string _remoteIP;
+        #endregion Fields
 
-        private int? _remotePort;
-        private int? _localPort;
+        #region Constructors
 
         public UdpServerViewModel()
         {
             IsTextMode = true;
         }
 
+        #endregion Constructors
+
+        #region Events
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion Events
+
+        #region Properties
 
         public bool Connected
         {
@@ -41,6 +55,8 @@ namespace PortHelper.ViewModel
                 OnPropertyChanged(nameof(OpenButtonText));
             }
         }
+
+        public bool HeartbeatFeedback { get; set; }
 
         public bool IsTextMode
         {
@@ -79,8 +95,6 @@ namespace PortHelper.ViewModel
             }
         }
 
-        public string OpenButtonText => Connected ? "Close" : "Open";
-
         public int? LocalPort
         {
             get => _localPort;
@@ -91,6 +105,11 @@ namespace PortHelper.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public string OpenButtonText => Connected ? "Close" : "Open";
+
+        public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
+            new ObservableCollection<LogViewModel>();
 
         public string RemoteIP
         {
@@ -113,11 +132,6 @@ namespace PortHelper.ViewModel
                 OnPropertyChanged();
             }
         }
-
-        public bool HeartbeatFeedback { get; set; }
-
-        public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
-            new ObservableCollection<LogViewModel>();
 
         public ObservableCollection<LogViewModel> SendLogs { get; } =
             new ObservableCollection<LogViewModel>();
@@ -150,6 +164,44 @@ namespace PortHelper.ViewModel
 
         public Socket Server { get; set; }
 
+        #endregion Properties
+
+        #region Methods
+
+        public async Task OpenAsync()
+        {
+            try
+            {
+                if (!Connected)
+                {
+                    Server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,
+                        ProtocolType.Udp);
+                    Server.Bind(new IPEndPoint(IPAddress.Any, LocalPort ?? 0));
+                    LocalPort = ((IPEndPoint)Server.LocalEndPoint).Port;
+                    ReceiveLogs.Add(new LogViewModel
+                    {
+                        IsSystemLog = true,
+                        Time = DateTime.Now,
+                        Text = $"** Start Listening Port: {LocalPort} **"
+                    });
+                    Connected = true;
+                    while (Connected) await Receive();
+                }
+
+                Server.Close();
+            }
+            catch (Exception)
+            {
+                Connected = false;
+                ReceiveLogs.Add(new LogViewModel
+                {
+                    IsSystemLog = true,
+                    Time = DateTime.Now,
+                    Text = "** Stop Listening **"
+                });
+            }
+        }
+
         public async Task Receive()
         {
             EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -163,7 +215,7 @@ namespace PortHelper.ViewModel
             else
             {
                 var readString = Encoding.UTF8.GetString(buffer, 0, length);
-                var remoteIPEndPoint = (IPEndPoint) remoteEndPoint;
+                var remoteIPEndPoint = (IPEndPoint)remoteEndPoint;
                 var receiveLog = new LogViewModel
                 {
                     IsTextMode = true,
@@ -190,44 +242,12 @@ namespace PortHelper.ViewModel
             SendLogs.Add(sendLog);
         }
 
-        public async Task OpenAsync()
-        {
-            try
-            {
-                if (!Connected)
-                {
-                    Server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,
-                        ProtocolType.Udp);
-                    Server.Bind(new IPEndPoint(IPAddress.Any, LocalPort ?? 0));
-                    LocalPort = ((IPEndPoint) Server.LocalEndPoint).Port;
-                    ReceiveLogs.Add(new LogViewModel
-                    {
-                        IsSystemLog = true,
-                        Time = DateTime.Now,
-                        Text = $"** Start Listening Port: {LocalPort} **"
-                    });
-                    Connected = true;
-                    while (Connected) await Receive();
-                }
-
-                Server.Close();
-            }
-            catch (Exception)
-            {
-                Connected = false;
-                ReceiveLogs.Add(new LogViewModel
-                {
-                    IsSystemLog = true,
-                    Time = DateTime.Now,
-                    Text = "** Stop Listening **"
-                });
-            }
-        }
-
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #endregion Methods
     }
 }

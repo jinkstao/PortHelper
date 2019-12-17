@@ -76,14 +76,16 @@
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <Button Command="Open" Content="{Binding TcpServer.OpenButtonText}" />
                     <TextBlock>Local Port:</TextBlock>
-                    <TextBox Text="{Binding TcpServer.LocalPort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
+                    <TextBox Text="{Binding TcpServer.LocalPort, Mode=TwoWay}" Width="80"
+                             HorizontalContentAlignment="Center" />
                     <TextBlock>Remote Clients:</TextBlock>
                     <ComboBox Width="200" HorizontalContentAlignment="Center"
                               ItemsSource="{Binding TcpServer.RemoteClients}"
                               SelectedItem="{Binding TcpServer.RemoteClient, Mode=TwoWay}"
-                              DisplayMemberPath="Name"/>
+                              DisplayMemberPath="Name" />
                     <TextBlock>Max Count:</TextBlock>
-                    <TextBox Text="{Binding TcpServer.MaxCount, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
+                    <TextBox Text="{Binding TcpServer.MaxCount, Mode=TwoWay}" Width="80"
+                             HorizontalContentAlignment="Center" />
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
@@ -106,7 +108,7 @@
                         </ScrollViewer>
                     </GroupBox>
                     <GroupBox Grid.Row="0" Grid.Column="1" Header="Sending Records">
-                        <ScrollViewer >
+                        <ScrollViewer>
                             <DataGrid ItemsSource="{Binding TcpServer.SendLogs}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
@@ -140,12 +142,15 @@
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <Button Command="Open" Content="{Binding UdpServer.OpenButtonText}" Cursor="Hand" />
                     <TextBlock>Local Port:</TextBlock>
-                    <TextBox Text="{Binding UdpServer.LocalPort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
+                    <TextBox Text="{Binding UdpServer.LocalPort, Mode=TwoWay}" Width="80"
+                             HorizontalContentAlignment="Center" />
                     <TextBlock>Remote Clients:</TextBlock>
-                    <TextBox Text="{Binding UdpServer.RemoteIP, Mode=TwoWay}" Width="120" HorizontalContentAlignment="Center" />
-                    <TextBlock Text=":"/>
-                    <TextBox Text="{Binding UdpServer.RemotePort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
-                    <CheckBox IsChecked="{Binding HeartbeatFeedback}" Content="Heartbeat Feedback"/>
+                    <TextBox Text="{Binding UdpServer.RemoteIP, Mode=TwoWay}" Width="120"
+                             HorizontalContentAlignment="Center" />
+                    <TextBlock Text=":" />
+                    <TextBox Text="{Binding UdpServer.RemotePort, Mode=TwoWay}" Width="80"
+                             HorizontalContentAlignment="Center" />
+                    <CheckBox IsChecked="{Binding HeartbeatFeedback}" Content="Heartbeat Feedback" />
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>

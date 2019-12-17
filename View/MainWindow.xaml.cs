@@ -1,5 +1,4 @@
-﻿using System;
-using PortHelper.ViewModel;
+﻿using PortHelper.ViewModel;
 using System.Windows.Input;
 
 namespace PortHelper.View
@@ -9,6 +8,8 @@ namespace PortHelper.View
     /// </summary>
     public partial class MainWindow
     {
+        #region Constructors
+
         public MainWindow()
         {
             InitializeComponent();
@@ -16,14 +17,27 @@ namespace PortHelper.View
             DataContext = ViewModel;
         }
 
+        #endregion Constructors
+
+        #region Properties
+
         public MainViewModel ViewModel { get; set; }
+
+        #endregion Properties
+
+        #region Methods
+
+        private void Open_Execute(object sender, ExecutedRoutedEventArgs e)
+        {
+            ViewModel.CurrentViewModel.OpenAsync();
+        }
 
         private void SendMessage_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = ViewModel?.CurrentViewModel switch
             {
                 TcpServerViewModel tcpViewModel => tcpViewModel.Connected && tcpViewModel.RemoteClient != null,
-                UdpServerViewModel udpViewModel => udpViewModel.Connected && !string.IsNullOrEmpty(udpViewModel.RemoteIP) && udpViewModel.RemotePort != null,
+                UdpServerViewModel udpViewModel => !string.IsNullOrEmpty(udpViewModel.RemoteIP) && udpViewModel.RemotePort != null,
                 _ => false
             };
         }
@@ -33,14 +47,6 @@ namespace PortHelper.View
             ViewModel.CurrentViewModel.Send();
         }
 
-        private void Open_Execute(object sender, ExecutedRoutedEventArgs e)
-        {
-            ViewModel.CurrentViewModel.OpenAsync();
-        }
-
-        private void EventSetter_OnHandler(object sender, MouseButtonEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion Methods
     }
 }

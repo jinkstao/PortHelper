@@ -1,12 +1,17 @@
 using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace PortHelper.ViewModel
 {
     public sealed class MainViewModel : INotifyPropertyChanged
     {
+        #region Fields
+
         private int _selectedIndex;
+
+        #endregion Fields
+
+        #region Constructors
 
         public MainViewModel()
         {
@@ -15,7 +20,15 @@ namespace PortHelper.ViewModel
             SelectedIndex = 0;
         }
 
+        #endregion Constructors
+
+        #region Events
+
         public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion Events
+
+        #region Properties
 
         public IBaseProtocolViewModel CurrentViewModel { get; set; }
 
@@ -37,5 +50,7 @@ namespace PortHelper.ViewModel
         public TcpServerViewModel TcpServer { get; }
 
         public UdpServerViewModel UdpServer { get; }
+
+        #endregion Properties
     }
 }

@@ -7,15 +7,25 @@ namespace PortHelper.ViewModel
 {
     public sealed class LogViewModel : INotifyPropertyChanged
     {
+        #region Fields
+
         private byte[] _content;
 
         private bool _isTextMode;
+        private string _source;
 
         private string _text;
         private DateTime _time;
-        private string _source;
+
+        #endregion Fields
+
+        #region Events
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion Events
+
+        #region Properties
 
         public byte[] Content
         {
@@ -37,6 +47,17 @@ namespace PortHelper.ViewModel
                 _isTextMode = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Text));
+            }
+        }
+
+        public string Source
+        {
+            get => _source;
+            set
+            {
+                if (_source == value) return;
+                _source = value;
+                OnPropertyChanged();
             }
         }
 
@@ -80,21 +101,16 @@ namespace PortHelper.ViewModel
             }
         }
 
-        public string Source
-        {
-            get => _source;
-            set
-            {
-                if (_source == value) return;
-                _source = value;
-                OnPropertyChanged();
-            }
-        }
+        #endregion Properties
+
+        #region Methods
 
         [NotifyPropertyChangedInvocator]
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #endregion Methods
     }
 }
