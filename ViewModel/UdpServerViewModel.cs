@@ -114,6 +114,8 @@ namespace PortHelper.ViewModel
             }
         }
 
+        public bool HeartbeatFeedback { get; set; }
+
         public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
             new ObservableCollection<LogViewModel>();
 
@@ -154,7 +156,7 @@ namespace PortHelper.ViewModel
             var buffer = new byte[1024];
             var length = await Task.Run(() => Server.ReceiveFrom(buffer, ref remoteEndPoint));
             //int length = Server.ReceiveFrom(buffer, ref RemoteEndPoint);
-            if (length == 0)
+            if (length == 0 && HeartbeatFeedback)
             {
                 Server.SendTo(new byte[0], remoteEndPoint);
             }
@@ -209,6 +211,9 @@ namespace PortHelper.ViewModel
                 }
 
                 Server.Close();
+            }
+            catch (Exception)
+            {
                 Connected = false;
                 ReceiveLogs.Add(new LogViewModel
                 {
@@ -216,9 +221,6 @@ namespace PortHelper.ViewModel
                     Time = DateTime.Now,
                     Text = "** Stop Listening **"
                 });
-            }
-            catch (Exception e)
-            {
             }
         }
 

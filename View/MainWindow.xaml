@@ -14,6 +14,10 @@
         mc:Ignorable="d"
         Title="Port Helper" WindowStartupLocation="CenterScreen">
     <Window.Resources>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource MaterialDesignCardGroupBox}">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="5" />
+        </Style>
         <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedDarkButton}">
             <Setter Property="Margin" Value="5" />
             <Setter Property="Padding" Value="5" />
@@ -31,6 +35,13 @@
             <Setter Property="Margin" Value="10, 0" />
         </Style>
         <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignComboBox}">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Margin" Value="10, 0" />
+        </Style>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource MaterialDesignCheckBox}">
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -67,9 +78,12 @@
                     <TextBlock>Local Port:</TextBlock>
                     <TextBox Text="{Binding TcpServer.LocalPort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
                     <TextBlock>Remote Clients:</TextBlock>
-                    <ComboBox Width="200" ItemsSource="{Binding TcpServer.RemoteClients}"
+                    <ComboBox Width="200" HorizontalContentAlignment="Center"
+                              ItemsSource="{Binding TcpServer.RemoteClients}"
                               SelectedItem="{Binding TcpServer.RemoteClient, Mode=TwoWay}"
                               DisplayMemberPath="Name"/>
+                    <TextBlock>Max Count:</TextBlock>
+                    <TextBox Text="{Binding TcpServer.MaxCount, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
@@ -80,24 +94,28 @@
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <ScrollViewer Grid.Row="0" Grid.Column="0">
-                        <DataGrid ItemsSource="{Binding TcpServer.ReceiveLogs}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
-                                <DataGridTextColumn Header="From" Binding="{Binding Source}" />
-                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </ScrollViewer>
-                    <ScrollViewer Grid.Row="0" Grid.Column="1">
-                        <DataGrid ItemsSource="{Binding TcpServer.SendLogs}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
-                                <DataGridTextColumn Header="To" Binding="{Binding Source}" />
-                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </ScrollViewer>
+                    <GroupBox Grid.Row="0" Grid.Column="0" Header="Receiving Records">
+                        <ScrollViewer>
+                            <DataGrid ItemsSource="{Binding TcpServer.ReceiveLogs}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                    <DataGridTextColumn Header="From" Binding="{Binding Source}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                    </GroupBox>
+                    <GroupBox Grid.Row="0" Grid.Column="1" Header="Sending Records">
+                        <ScrollViewer >
+                            <DataGrid ItemsSource="{Binding TcpServer.SendLogs}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                    <DataGridTextColumn Header="To" Binding="{Binding Source}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                    </GroupBox>
                     <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -127,6 +145,7 @@
                     <TextBox Text="{Binding UdpServer.RemoteIP, Mode=TwoWay}" Width="120" HorizontalContentAlignment="Center" />
                     <TextBlock Text=":"/>
                     <TextBox Text="{Binding UdpServer.RemotePort, Mode=TwoWay}" Width="80" HorizontalContentAlignment="Center" />
+                    <CheckBox IsChecked="{Binding HeartbeatFeedback}" Content="Heartbeat Feedback"/>
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
@@ -137,24 +156,28 @@
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <ScrollViewer Grid.Row="0" Grid.Column="0">
-                        <DataGrid ItemsSource="{Binding UdpServer.ReceiveLogs}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
-                                <DataGridTextColumn Header="To" Binding="{Binding Source}" />
-                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </ScrollViewer>
-                    <ScrollViewer Grid.Row="0" Grid.Column="1">
-                        <DataGrid ItemsSource="{Binding UdpServer.SendLogs}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
-                                <DataGridTextColumn Header="From" Binding="{Binding Source}" />
-                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </ScrollViewer>
+                    <GroupBox Grid.Row="0" Grid.Column="0" Header="Receiving Records">
+                        <ScrollViewer>
+                            <DataGrid ItemsSource="{Binding UdpServer.ReceiveLogs}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                    <DataGridTextColumn Header="To" Binding="{Binding Source}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                    </GroupBox>
+                    <GroupBox Grid.Row="0" Grid.Column="1" Header="Sending Records">
+                        <ScrollViewer>
+                            <DataGrid ItemsSource="{Binding UdpServer.SendLogs}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
+                                    <DataGridTextColumn Header="From" Binding="{Binding Source}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </ScrollViewer>
+                    </GroupBox>
                     <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />

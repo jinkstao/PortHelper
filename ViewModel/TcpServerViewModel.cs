@@ -21,6 +21,8 @@ namespace PortHelper.ViewModel
 
         private int? _localPort;
 
+        private int? _maxCount;
+
         private TcpClientViewModel _remoteClient;
 
         public TcpServerViewModel()
@@ -105,6 +107,17 @@ namespace PortHelper.ViewModel
             }
         }
 
+        public int? MaxCount
+        {
+            get => _maxCount;
+            set
+            {
+                if (_maxCount == value) return;
+                _maxCount = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<LogViewModel> ReceiveLogs { get; } =
             new ObservableCollection<LogViewModel>();
 
@@ -139,7 +152,7 @@ namespace PortHelper.ViewModel
 
         public Socket Server { get; set; }
 
-        public async Task Receive(TcpClientViewModel client)
+        public async Task ReceiveAsync(TcpClientViewModel client)
         {
             while (true)
             {
@@ -209,14 +222,14 @@ namespace PortHelper.ViewModel
                         Time = DateTime.Now,
                         Text = $"** Start Listening Port: {LocalPort} **"
                     });
-                    Server.Listen(10);
+                    MaxCount ??= 10;
+                    Server.Listen(MaxCount.Value);
                     Connected = true;
                     while (Connected)
                     {
                         var socket = await Server.AcceptAsync();
                         var client = new TcpClientViewModel(socket);
                         RemoteClients.Add(client);
-                        _ = Receive(client);
                         var builtLog = new LogViewModel
                         {
                             IsSystemLog = true,
@@ -225,6 +238,7 @@ namespace PortHelper.ViewModel
                             Source = client.Name
                         };
                         ReceiveLogs.Add(builtLog);
+                        _ = ReceiveAsync(client);
                     }
                 }
 
