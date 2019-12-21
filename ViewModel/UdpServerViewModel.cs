@@ -181,7 +181,6 @@ namespace PortHelper.ViewModel
                     ReceiveLogs.Add(new LogViewModel
                     {
                         IsSystemLog = true,
-                        Time = DateTime.Now,
                         Text = $"** Start Listening Port: {LocalPort} **"
                     });
                     Connected = true;
@@ -196,7 +195,6 @@ namespace PortHelper.ViewModel
                 ReceiveLogs.Add(new LogViewModel
                 {
                     IsSystemLog = true,
-                    Time = DateTime.Now,
                     Text = "** Stop Listening **"
                 });
             }
@@ -219,7 +217,6 @@ namespace PortHelper.ViewModel
                 var receiveLog = new LogViewModel
                 {
                     IsTextMode = true,
-                    Time = DateTime.Now,
                     Text = readString,
                     Source = $"{remoteIPEndPoint.Address}:{remoteIPEndPoint.Port}"
                 };
@@ -231,11 +228,10 @@ namespace PortHelper.ViewModel
         public async Task Send()
         {
             var remoteIPEndPoint = new IPEndPoint(IPAddress.Parse(RemoteIP), RemotePort.Value);
-            Server.SendTo(_sendBytes, remoteIPEndPoint);
+            await Task.Run(() => Server.SendTo(_sendBytes, remoteIPEndPoint));
             var sendLog = new LogViewModel
             {
                 IsTextMode = IsTextMode,
-                Time = DateTime.Now,
                 Text = SendMessage,
                 Source = $"{remoteIPEndPoint.Address}:{remoteIPEndPoint.Port}"
             };

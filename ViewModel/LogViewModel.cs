@@ -15,9 +15,13 @@ namespace PortHelper.ViewModel
         private string _source;
 
         private string _text;
-        private DateTime _time;
 
         #endregion Fields
+
+        public LogViewModel()
+        {
+            Time = DateTime.Now;
+        }
 
         #region Events
 
@@ -91,15 +95,7 @@ namespace PortHelper.ViewModel
             }
         }
 
-        public DateTime Time
-        {
-            get => _time;
-            set
-            {
-                _time = value;
-                OnPropertyChanged();
-            }
-        }
+        public DateTime Time { get; }
 
         #endregion Properties
 

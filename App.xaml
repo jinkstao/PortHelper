@@ -15,6 +15,7 @@
                     Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <RoutedUICommand x:Key="Send" />
+            <RoutedUICommand x:Key="Copy" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,4 +1,6 @@
-﻿using PortHelper.ViewModel;
+﻿using System.Windows;
+using System.Windows.Controls;
+using PortHelper.ViewModel;
 using System.Windows.Input;
 
 namespace PortHelper.View
@@ -48,5 +50,10 @@ namespace PortHelper.View
         }
 
         #endregion Methods
+
+        private void Copy_Execute(object sender, ExecutedRoutedEventArgs e)
+        {
+            Clipboard.SetDataObject(e.Parameter);
+        }
     }
 }

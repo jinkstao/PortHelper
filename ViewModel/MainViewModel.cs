@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace PortHelper.ViewModel
 {
-    public sealed class MainViewModel : INotifyPropertyChanged
+    public sealed class MainViewModel
     {
         #region Fields
 
@@ -21,12 +21,6 @@ namespace PortHelper.ViewModel
         }
 
         #endregion Constructors
-
-        #region Events
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion Events
 
         #region Properties
 

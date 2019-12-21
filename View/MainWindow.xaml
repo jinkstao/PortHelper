@@ -56,13 +56,43 @@
         <Style TargetType="ScrollViewer" BasedOn="{StaticResource MaterialDesignScrollViewer}">
             <Setter Property="Margin" Value="5" />
             <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
         </Style>
         <Style TargetType="DataGrid" BasedOn="{StaticResource MaterialDesignDataGrid}">
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
             <Setter Property="AutoGenerateColumns" Value="False" />
+        </Style>
+        <Style TargetType="ToolTip" BasedOn="{StaticResource MaterialDesignToolTip}">
+            <Style.Resources>
+                <Style TargetType="ContentPresenter">
+                    <Style.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                    </Style.Resources>
+                </Style>
+            </Style.Resources>
+            <Setter Property="MaxWidth" Value="500" />
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignBody2TextBlock}" x:Key="DataGridTextBlockStyle">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="ToolTip"
+                    Value="{Binding Path=Text, RelativeSource={RelativeSource Self}}"/>
+            <Setter Property="ContextMenu">
+                <Setter.Value>
+                    <ContextMenu DataContext="{Binding Path=PlacementTarget, RelativeSource={RelativeSource Self}}">
+                        <MenuItem Header="Copy" Command="{StaticResource Send}"
+                                  CommandParameter="{Binding Text}" />
+                    </ContextMenu>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="Open" Executed="Open_Execute" />
+        <CommandBinding Command="{StaticResource Send}" Executed="Copy_Execute" />
         <CommandBinding Command="{StaticResource Send}" Executed="SendMessage_Execute"
                         CanExecute="SendMessage_CanExecute" />
     </Window.CommandBindings>
@@ -76,7 +106,7 @@
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <Button Command="Open" Content="{Binding TcpServer.OpenButtonText}" />
                     <TextBlock>Local Port:</TextBlock>
-                    <TextBox Text="{Binding TcpServer.LocalPort, Mode=TwoWay}" Width="80"
+                    <TextBox Text="{Binding TcpServer.LocalPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"
                              HorizontalContentAlignment="Center" />
                     <TextBlock>Remote Clients:</TextBlock>
                     <ComboBox Width="200" HorizontalContentAlignment="Center"
@@ -84,7 +114,7 @@
                               SelectedItem="{Binding TcpServer.RemoteClient, Mode=TwoWay}"
                               DisplayMemberPath="Name" />
                     <TextBlock>Max Count:</TextBlock>
-                    <TextBox Text="{Binding TcpServer.MaxCount, Mode=TwoWay}" Width="80"
+                    <TextBox Text="{Binding TcpServer.MaxCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"
                              HorizontalContentAlignment="Center" />
                 </StackPanel>
                 <Grid Grid.Row="1">
@@ -102,7 +132,8 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
                                     <DataGridTextColumn Header="From" Binding="{Binding Source}" />
-                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*"
+                                                        ElementStyle="{StaticResource DataGridTextBlockStyle}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </ScrollViewer>
@@ -113,7 +144,8 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
                                     <DataGridTextColumn Header="To" Binding="{Binding Source}" />
-                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*"
+                                                        ElementStyle="{StaticResource DataGridTextBlockStyle}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </ScrollViewer>
@@ -142,13 +174,13 @@
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <Button Command="Open" Content="{Binding UdpServer.OpenButtonText}" Cursor="Hand" />
                     <TextBlock>Local Port:</TextBlock>
-                    <TextBox Text="{Binding UdpServer.LocalPort, Mode=TwoWay}" Width="80"
+                    <TextBox Text="{Binding UdpServer.LocalPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"
                              HorizontalContentAlignment="Center" />
                     <TextBlock>Remote Clients:</TextBlock>
-                    <TextBox Text="{Binding UdpServer.RemoteIP, Mode=TwoWay}" Width="120"
+                    <TextBox Text="{Binding UdpServer.RemoteIP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"
                              HorizontalContentAlignment="Center" />
                     <TextBlock Text=":" />
-                    <TextBox Text="{Binding UdpServer.RemotePort, Mode=TwoWay}" Width="80"
+                    <TextBox Text="{Binding UdpServer.RemotePort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"
                              HorizontalContentAlignment="Center" />
                     <CheckBox IsChecked="{Binding HeartbeatFeedback}" Content="Heartbeat Feedback" />
                 </StackPanel>
@@ -167,7 +199,8 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
                                     <DataGridTextColumn Header="To" Binding="{Binding Source}" />
-                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*"
+                                                        ElementStyle="{StaticResource DataGridTextBlockStyle}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </ScrollViewer>
@@ -178,7 +211,8 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Time" Binding="{Binding Time}" />
                                     <DataGridTextColumn Header="From" Binding="{Binding Source}" />
-                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" />
+                                    <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*"
+                                                        ElementStyle="{StaticResource DataGridTextBlockStyle}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </ScrollViewer>

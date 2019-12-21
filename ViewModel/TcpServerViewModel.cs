@@ -183,7 +183,6 @@ namespace PortHelper.ViewModel
                     ReceiveLogs.Add(new LogViewModel
                     {
                         IsSystemLog = true,
-                        Time = DateTime.Now,
                         Text = $"** Start Listening Port: {LocalPort} **"
                     });
                     MaxCount ??= 10;
@@ -197,7 +196,6 @@ namespace PortHelper.ViewModel
                         var builtLog = new LogViewModel
                         {
                             IsSystemLog = true,
-                            Time = DateTime.Now,
                             Text = "** Connection Built. **",
                             Source = client.Name
                         };
@@ -214,7 +212,6 @@ namespace PortHelper.ViewModel
                 ReceiveLogs.Add(new LogViewModel
                 {
                     IsSystemLog = true,
-                    Time = DateTime.Now,
                     Text = "** Stop Listening **"
                 });
             }
@@ -228,6 +225,7 @@ namespace PortHelper.ViewModel
                 var readBytes = new byte[1024];
                 try
                 {
+                    if (client.Entity.Poll(100, SelectMode.SelectRead)) throw new SocketException();
                     var readCount = await stream.ReadAsync(readBytes, 0, readBytes.Length);
                     if (readCount > 0)
                     {
@@ -235,7 +233,6 @@ namespace PortHelper.ViewModel
                         var receiveLog = new LogViewModel
                         {
                             IsTextMode = true,
-                            Time = DateTime.Now,
                             Text = readString,
                             Source = client.Name
                         };
@@ -249,11 +246,11 @@ namespace PortHelper.ViewModel
                     var closeLog = new LogViewModel
                     {
                         IsSystemLog = true,
-                        Time = DateTime.Now,
                         Text = "** Connection Closed. **",
                         Source = client.Name
                     };
                     ReceiveLogs.Add(closeLog);
+                    return;
                 }
             }
         }
@@ -266,7 +263,6 @@ namespace PortHelper.ViewModel
             var sendLog = new LogViewModel
             {
                 IsTextMode = IsTextMode,
-                Time = DateTime.Now,
                 Text = SendMessage,
                 Source = RemoteClient.Name
             };
